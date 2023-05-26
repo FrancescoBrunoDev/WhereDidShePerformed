@@ -1,0 +1,37 @@
+{
+  "composer": {
+    "90": { "count": 41476, "title": "Bach, Johann Sebastian (1685–1750)" },
+    "78": { "count": 26823, "title": "Mozart, Wolfgang Amadeus (1756–1791)" },
+    "70": { "count": 26808, "title": "Beethoven, Ludwig van (1770–1827)" },
+    "209": { "count": 16947, "title": "Brahms, Johannes (1833–1897)" },
+    "29": { "count": 15136, "title": "Wagner, Richard (1813–1883)" },
+    "120": {
+      "count": 13333,
+      "title": "Mendelssohn Bartholdy, Felix (1809–1847)"
+    },
+    "10": { "count": 11721, "title": "Weber, Carl Maria von (1786–1826)" },
+    "232": { "count": 11613, "title": "Schubert, Franz (1797–1828)" },
+    "301": { "count": 11070, "title": "Schumann, Robert (1810–1856)" },
+    "79": { "count": 8087, "title": "Strauss, Richard (1864–1949)" },
+    "135": { "count": 7906, "title": "Haydn, Joseph (1732–1809)" },
+    "85": { "count": 7652, "title": "Schütz, Heinrich (1585–1672)" },
+    "13103": { "count": 6186, "title": "Sander, Werner (1902–1972)" },
+    "451": { "count": 6083, "title": "Weber, Bernhard Anselm (1764–1821)" },
+    "72": { "count": 6064, "title": "Strauss, Johann (1825–1899)" },
+    "139": { "count": 5728, "title": "Reger, Max (1873–1916)" },
+    "13142": { "count": 5632, "title": "Groß, Friedbert (1937–)" },
+    "118": { "count": 5492, "title": "Liszt, Franz (1811–1886)" },
+    "177": { "count": 5275, "title": "Tschaikowski, Peter I. (1840–1893)" },
+    "75": { "count": 4340, "title": "Verdi, Giuseppe (1813–1901)" },
+    "1087": { "count": 4318, "title": "Bruckner, Anton (1824–1896)" },
+    "154": { "count": 4180, "title": "Händel, Georg Friedrich (1685–1759)" },
+    "992": { "count": 3666, "title": "Dvořák, Antonín (1841–1904)" },
+    "3456": { "count": 3647, "title": "Lewandowski, Louis (1821–1894)" },
+    "623": { "count": 3548, "title": "Chopin, Frédéric (1810–1849)" },
+    "54": { "count": 3262, "title": "Gluck, Christoph Willibald (1714–1787)" },
+    "22": { "count": 3261, "title": "Rossini, Gioachino (1792–1868)" },
+    "495": { "count": 3181, "title": "Müller, Wenzel (1759–1835)" },
+    "196": { "count": 3158, "title": "Méhul, Étienne Nicolas (1763–1817)" }
+  }
+}
+
