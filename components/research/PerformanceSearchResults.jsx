@@ -10,7 +10,6 @@ import { Loading } from "@/components/loading"
 import getRandomSentenceWithEmoji from "./randomSencences"
 
 export default function PerformanceSearchResults({ results }) {
-  
   if (!results || results.length === 0) {
     return null
   }
@@ -39,7 +38,7 @@ export default function PerformanceSearchResults({ results }) {
     } else {
       return (
         <m.div key={person.uid} variants={item}>
-          <Link href={`/${person.uid}/`}>
+          <Link href={`/perfomer/${person.uid}/`}>
             <Card key={person.uid}>
               <CardHeader>{person.title}</CardHeader>
               <CardFooter className="gap-x-1">
@@ -67,8 +66,8 @@ export default function PerformanceSearchResults({ results }) {
 
     content.unshift(
       <m.div variants={item} key={person.uid} className="col-span-2">
-        <Link href={`/${person.uid}/`}>
-          <Card key={person.uid} className="bg-accent shadow-lg border-0">
+        <Link href={`/perfomer/${person.uid}/`}>
+          <Card key={person.uid} className="border-0 bg-accent shadow-lg">
             <CardHeader>
               <span>{sentenceWithEmoji}</span>
               <span style={{ fontWeight: "bold" }}>{cleanedTitle}</span>
@@ -84,7 +83,10 @@ export default function PerformanceSearchResults({ results }) {
   } else {
     content.unshift(
       <m.div variants={item} className="col-span-2">
-        <Card key="no-results" className="bg-accent text-center shadow-lg border-0">
+        <Card
+          key="no-results"
+          className="border-0 bg-accent text-center shadow-lg"
+        >
           <CardHeader className="font-bold">
             <span>Tip</span>
           </CardHeader>

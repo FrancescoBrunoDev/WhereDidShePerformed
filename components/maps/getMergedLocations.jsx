@@ -7,6 +7,7 @@ import {
 
 export async function GetListOfEvent(id, usePerformances = false) {
   let event = {}
+  console.log(id, "id")
   const eventsNumbers = id.events.map((event) => event.event)
   if (eventsNumbers.length > 500) {
     const chunkSize = 500
@@ -111,8 +112,10 @@ export async function GetExpandedEventWithPerformances(id, locationsData) {
   return expandedLocationsPerformance
 }
 
-export async function GetLocationsWithEventsAndTitle(id) {
+export async function GetLocationsWithEventsAndTitle(id, eventIds) {
+  // get event
   const event = await GetListOfEvent(id)
+
   // make a string of unique locationUids
   const locationUid = [
     ...new Set(

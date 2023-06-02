@@ -75,6 +75,19 @@ async function GetNameComposer(PersonUid) {
 
 export { GetNameComposer }
 
+async function GetEventsDetails(eventIds) {
+  const url = `https://performance.musiconn.de/api?action=get&event=${eventIds}&props=uid|&format=json`
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error("Failed to fetch data")
+  }
+
+  const { event } = await res.json()
+  return event
+}
+
+export { GetEventsDetails }
+
 async function autocomplete(query) {
   const url = `https://performance.musiconn.de/api?action=autocomplete&title=${query}&entities=person&format=json`
   const res = await fetch(url)

@@ -7,7 +7,12 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { autocomplete } from "@/app/api/musiconn"
 
-export default function PerformanceSearchForm({ onSubmit, opened, setOpened, setIsClicked }) {
+export default function PerformanceSearchForm({
+  onSubmit,
+  opened,
+  setOpened,
+  setIsClicked,
+}) {
   const [searchTerm, setSearchTerm] = useState("")
   const [suggestions, setSuggestions] = useState([])
   const ref = useClickOutside(() => setOpened(false))
@@ -80,7 +85,7 @@ export default function PerformanceSearchForm({ onSubmit, opened, setOpened, set
                   {suggestions.map((suggestion, index) => (
                     <m.div
                       layout
-                      className="rounded-lg p-2 hover:bg-secondary text-sm"
+                      className="rounded-lg p-2 text-sm hover:bg-secondary"
                       key={index}
                       onClick={() => handleSuggestionClick(suggestion[0])}
                       style={{

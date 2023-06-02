@@ -1,13 +1,13 @@
 import { useState } from "react"
 import { useClickOutside } from "@mantine/hooks"
-import { AnimatePresence, LayoutGroup, motion as m } from "framer-motion"
+import { motion as m } from "framer-motion"
 
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { item, list } from "@/components/animationConst/animationConst"
+import { item } from "@/components/animationConst/animationConst"
 import { getAvailableComposers } from "@/components/list/filterLocationsData"
 
 export function ComposerSearchBox({
@@ -36,18 +36,16 @@ export function ComposerSearchBox({
   return (
     <div className="flex-cols-2 flex content-center space-x-2 pb-5">
       <div className="static w-48 sm:w-64 md:w-72">
-        <m.div layout>
-          <Input
-            placeholder={
-              selectedComposerNames.length > 0
-                ? selectedComposerNames.join(", ")
-                : "Composer"
-            }
-            value={searchQuery}
-            onChange={handleInputChange}
-            onClick={() => setOpened(true)}
-          />
-        </m.div>
+        <Input
+          placeholder={
+            selectedComposerNames.length > 0
+              ? selectedComposerNames.join(", ")
+              : "Composer"
+          }
+          value={searchQuery}
+          onChange={handleInputChange}
+          onClick={() => setOpened(true)}
+        />
 
         {opened && suggestions.length > 0 && (
           <m.div

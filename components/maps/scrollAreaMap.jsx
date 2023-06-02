@@ -1,9 +1,13 @@
-import { Suspense, useCallback } from "react"
-import { motion as m } from "framer-motion"
+import { Suspense, useCallback, useState } from "react"
+import { AnimatePresence, motion as m } from "framer-motion"
 
-import { Accordion } from "@/components/ui/accordion"
+import {
+  Accordion,
+} from "@/components/ui/accordion"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Slider } from "@/components/ui/slider"
+import { Switch } from "@/components/ui/switch"
+import { DatePicker } from "@/components/researchDate/eventPicker"
+import CarrerTimeline from "@/components/maps/careerTimeline"
 
 import ScrollAreaItem from "./scrollAreaMapItem"
 
@@ -17,7 +21,9 @@ export default function ScrollAreaMap({
   filterHighestYear,
   isByCity,
   expandedLocations,
+  searchData,
 }) {
+  const [isTimeVisible, setIsTimeVisible] = useState(false)
   const handleAccordionHover = useCallback(
     (locationId) => {
       onLocationHover(locationId)
@@ -33,59 +39,61 @@ export default function ScrollAreaMap({
         className="container hidden lg:block"
       >
         <div className="fixed bottom-10 top-60 z-20 w-96">
-          <h4 className="mb-4 mt-5 text-2xl font-black leading-none">
-            Career Timeline
-          </h4>
-          <Suspense>
-            <div className="mr-3 flex items-center justify-normal space-x-2 py-1 pb-5">
-              {highestYear || lowestYear ? (
-                lowestYear === highestYear ? (
-                  <p className="w-15 text-base">
-                    It seems that I only have data for the year {lowestYear}
-                  </p>
-                ) : (
-                  <>
-                    {expandedLocations ? (
-                      <div className="text-sm">The slider&apos;s value is fixed due to the active composer filter, prohibiting any modifications.</div>
-                    ) : (
-                      <>
-                        {" "}
-                        <p className="w-15 text-primary">{lowestYear}</p>
-                        <Slider
-                          disabled={
-                            expandedLocations || lowestYear === highestYear
-                              ? true
-                              : false
-                          }
-                          defaultValue={[filterHighestYear]}
-                          min={lowestYear}
-                          max={highestYear}
-                          step={1}
-                          onValueChange={(newValue) => {
-                            updateFilterHighestYear(newValue[0])
-                          }}
-                        />
-                        <p className="w-15">{highestYear}</p>{" "}
-                      </>
-                    )}
-                  </>
-                )
-              ) : null}
-            </div>
-          </Suspense>
-
-          <h4 className="mb-4 text-2xl font-black leading-none">Locations</h4>
-
-          <ScrollArea className="h-[30rem] w-full rounded-lg pr-2">
-            <Accordion>
-              <ScrollAreaItem
-                locationsData={locationsData}
-                handleAccordionHover={handleAccordionHover}
-                setIsHover={setIsHover}
-                isByCity={isByCity}
-              />
-            </Accordion>
-          </ScrollArea>
+          <m.div layout className="mb-4 mt-5 rounded-lg bg-secondary p-4">
+            <m.div
+              layout
+              className=" flex justify-between text-xl font-black leading-none"
+            >
+              <m.div layout>
+                {searchData ? "Pick new dates" : "Career Timeline"}
+              </m.div>
+              <Switch
+                isChecked={isTimeVisible}
+                onCheckedChange={() => setIsTimeVisible(!isTimeVisible)}
+              ></Switch>
+            </m.div>
+            <AnimatePresence>
+              {!isTimeVisible ? null : searchData ? (
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  key="datePicker"
+                >
+                  <DatePicker searchData={searchData} />
+                </m.div>
+              ) : (
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  key="careerTimeline"
+                >
+                  <CarrerTimeline
+                    highestYear={highestYear}
+                    lowestYear={lowestYear}
+                    filterHighestYear={filterHighestYear}
+                    updateFilterHighestYear={updateFilterHighestYear}
+                    expandedLocations={expandedLocations}
+                  />
+                </m.div>
+              )}
+            </AnimatePresence>
+          </m.div>
+          
+          <m.div layout>
+            <h4 className="mb-4 text-2xl font-black leading-none">Locations</h4>
+            <ScrollArea className="h-[30rem] w-full rounded-lg pr-2">
+              <Accordion collapsible>
+                <ScrollAreaItem
+                  locationsData={locationsData}
+                  handleAccordionHover={handleAccordionHover}
+                  setIsHover={setIsHover}
+                  isByCity={isByCity}
+                />
+              </Accordion>
+            </ScrollArea>
+          </m.div>
         </div>
       </m.div>
     </Suspense>

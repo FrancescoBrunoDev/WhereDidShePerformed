@@ -11,6 +11,8 @@ import {
   Settings2,
   X,
   ArrowRight,
+  Undo,
+  Home,
   type Icon as LucideIcon,
 } from "lucide-react"
 import { TbBrandNextjs, TbBrandTailwind } from "react-icons/tb"
@@ -21,6 +23,8 @@ export const Icons = {
   sun: SunMedium,
   moon: Moon,
   twitter: Twitter,
+  undo: Undo,
+  home: Home,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

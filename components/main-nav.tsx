@@ -4,6 +4,7 @@ import Link from "next/link"
 import { NavItem } from "@/types/nav"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
+import { Icons } from "@/components/icons"
 
 interface MainNavProps {
   items?: NavItem[]
@@ -15,6 +16,9 @@ export function MainNav({ items }: MainNavProps) {
       <Link href="/" className="hidden items-center space-x-2 md:flex">
         <span className="hidden font-bold sm:inline-block">
           {siteConfig.name}
+        </span>
+        <span className="inline-block h-5 w-5 sm:hidden">
+          <Icons.home />
         </span>
       </Link>
       {items?.length ? (

@@ -1,4 +1,4 @@
-import { AnimatePresence, LayoutGroup, motion as m } from "framer-motion"
+import { LayoutGroup, motion as m } from "framer-motion"
 
 import {
   Popover,
@@ -30,6 +30,7 @@ export function SettingsList({
   locationsData,
   setSelectedComposerNames,
   selectedComposerNames,
+  searchData,
 }) {
   const isFilterActive =
     isConcertAvailable ||
@@ -38,7 +39,7 @@ export function SettingsList({
     isSeasonAvailable
 
   return (
-    <m.div className="container flex justify-center lg:justify-end">
+    <div className="container flex justify-center lg:justify-end">
       <m.div
         layout
         initial={{ x: 5, opacity: 0 }}
@@ -94,36 +95,50 @@ export function SettingsList({
 
         <Separator className="bg-primary" orientation="vertical" />
 
-        <div className="flex h-10 justify-end space-x-2 pl-3">
-          {expandedLocations && (
-            <m.div
-              key="composerSearchBox"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              className="flex h-10 justify-end space-x-2 pl-3"
-            >
-              <ComposerSearchBox
-                locationsData={locationsData}
-                setSelectedComposerNames={setSelectedComposerNames}
-                selectedComposerNames={selectedComposerNames}
-              />
+        <div className="pl-3">
+          {expandedLocations ? (
+            <m.div className="flex h-10 justify-end space-x-2">
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+              >
+                <ComposerSearchBox
+                  locationsData={locationsData}
+                  setSelectedComposerNames={setSelectedComposerNames}
+                  selectedComposerNames={selectedComposerNames}
+                  searchData={searchData}
+                />
+              </m.div>
+              <LayoutGroup>
+                <Toggle
+                  onPressedChange={() => {
+                    setExpandedLocations(
+                      (prevExpandedLocations) => !prevExpandedLocations
+                    )
+                    setSelectedComposerNames([])
+                  }}
+                  checked={expandedLocations}
+                >
+                  <Icons.exit />
+                </Toggle>
+              </LayoutGroup>
             </m.div>
+          ) : (
+            <Toggle
+              onPressedChange={() => {
+                setExpandedLocations(
+                  (prevExpandedLocations) => !prevExpandedLocations
+                )
+                setSelectedComposerNames([])
+              }}
+              checked={expandedLocations}
+            >
+              {searchData ? "Who was performed?" : "How did s.he performed?"}
+            </Toggle>
           )}
-
-          <Toggle
-            onPressedChange={() => {
-              setExpandedLocations(
-                (prevExpandedLocations) => !prevExpandedLocations
-              )
-              setSelectedComposerNames([])
-            }}
-            checked={expandedLocations}
-          >
-            {expandedLocations ? <Icons.exit /> : "How did s(he) played"}
-          </Toggle>
         </div>
       </m.div>
-    </m.div>
+    </div>
   )
 }

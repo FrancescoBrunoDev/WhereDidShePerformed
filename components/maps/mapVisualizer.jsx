@@ -22,6 +22,7 @@ export default function MapVisualizer({
   mapUrl,
   setMapUrl,
   expandedLocations,
+  searchData,
 }) {
   const [selectedLocationId, setSelectedLocationId] = useState(null)
   const [isHover, setIsHover] = useState(false)
@@ -38,6 +39,7 @@ export default function MapVisualizer({
         setIsHover={setIsHover}
         isByCity={isByCity}
         expandedLocations={expandedLocations}
+        searchData={searchData}
       />
 
       <div>

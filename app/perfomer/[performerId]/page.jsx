@@ -16,10 +16,10 @@ import {
   GetLocationsWithEventsAndTitle,
 } from "@/components/maps/getMergedLocations"
 
-import { GetInfoPerson } from "../api/musiconn"
-import List from "./list"
+import { GetInfoPerson } from "../../api/musiconn"
+import List from "@/components/list/list"
 import Loading from "./loading"
-import MapVisualizer from "./mapVisualizer"
+import MapVisualizer from "@/components/maps/mapVisualizer"
 
 const geoUrl =
   "https://raw.githubusercontent.com/leakyMirror/map-of-europe/27a335110674ae5b01a84d3501b227e661beea2b/TopoJSON/europe.topojson"
@@ -80,13 +80,15 @@ export default function Composer({ params }) {
     isMusicTheaterCategoryAvailable,
     isReligiousEventCategoryAvailable,
     isSeasonCategoryAvailable,
+    handleFilterChange,
   ])
 
   const { performerId } = params
 
   useEffect(() => {
     async function fetchData() {
-      const data = await GetLocationsWithEventsAndTitle(id)
+      const eventIds = null
+      const data = await GetLocationsWithEventsAndTitle(id, eventIds)
       setLocationsData(data)
     }
 

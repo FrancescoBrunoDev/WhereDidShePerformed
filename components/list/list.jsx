@@ -22,6 +22,7 @@ export default function List({
   areAllFiltersDeactivated,
   setSelectedComposerNames,
   selectedComposerNames,
+  searchData,
 }) {
   return (
     <>
@@ -43,6 +44,7 @@ export default function List({
         locationsData={filteredLocationsData}
         setSelectedComposerNames={setSelectedComposerNames}
         selectedComposerNames={selectedComposerNames}
+        searchData={searchData}
       />
 
       <section className="relative mb-10 overflow-y-scroll lg:container">
