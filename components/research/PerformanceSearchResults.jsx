@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import Link from "next/link"
+import { linkMaker } from "@/utils/linkMaker"
 import { motion as m } from "framer-motion"
 
 import { Badge } from "@/components/ui/badge"
@@ -31,24 +32,28 @@ export default function PerformanceSearchResults({ results }) {
 
   const content = Object.keys(results[0].person).map((personId) => {
     const person = results[0].person[personId]
+    console.log(person.title, "person")
     const event = results[0].person[personId].events.count
 
     if (person.title.includes("<mark>")) {
       return null // Exclude this person from the regular mapping
-    } else {
+    } else if (event > 0) {
       return (
         <m.div key={person.uid} variants={item}>
-          <Link href={`/perfomer/${person.uid}/`}>
+          <Link href={`/query/perfomer/${person.uid}/`}>
             <Card key={person.uid}>
               <CardHeader>{person.title}</CardHeader>
               <CardFooter className="gap-x-1">
-                <Badge>Events {event}</Badge>
-                <Badge variant="secondary">{person.uid}</Badge>
+                <Badge variant="secondary">Events {event}</Badge>
+
+                <Badge>{person.uid}</Badge>
               </CardFooter>
             </Card>
           </Link>
         </m.div>
       )
+    } else {
+      return null
     }
   })
 
@@ -66,15 +71,15 @@ export default function PerformanceSearchResults({ results }) {
 
     content.unshift(
       <m.div variants={item} key={person.uid} className="col-span-2">
-        <Link href={`/perfomer/${person.uid}/`}>
+        <Link href={`/query/perfomer/${person.uid}/`}>
           <Card key={person.uid} className="border-0 bg-accent shadow-lg">
             <CardHeader>
               <span>{sentenceWithEmoji}</span>
               <span style={{ fontWeight: "bold" }}>{cleanedTitle}</span>
             </CardHeader>
             <CardFooter className="gap-x-1">
-              <Badge>Events {event}</Badge>
-              <Badge variant="outline">{person.uid}</Badge>
+              <Badge variant="outline">Events {event}</Badge>
+              <Badge>{person.uid}</Badge>
             </CardFooter>
           </Card>
         </Link>

@@ -1,6 +1,8 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
+import { useViewportSize } from "@mantine/hooks"
+import { format, parseISO } from "date-fns"
 import { LayoutGroup, motion as m } from "framer-motion"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,23 +13,28 @@ import {
   checkCategoryAvailability,
   filterLocationsData,
 } from "@/components/list/filterLocationsData"
-import {
-  GetExpandedEventWithPerformances,
-  GetLocationsWithEventsAndTitle,
-} from "@/components/maps/getMergedLocations"
-
-import { GetInfoPerson } from "../../api/musiconn"
 import List from "@/components/list/list"
-import Loading from "./loading"
+import { GetExpandedEventWithPerformances } from "@/components/maps/getExpandedLocations"
 import MapVisualizer from "@/components/maps/mapVisualizer"
+import { GetInfoPerson } from "@/app/api/musiconn"
 
 const geoUrl =
   "https://raw.githubusercontent.com/leakyMirror/map-of-europe/27a335110674ae5b01a84d3501b227e661beea2b/TopoJSON/europe.topojson"
 
-export default function Composer({ params }) {
+export default function Dashboard({ params }) {
   const [locationsData, setLocationsData] = useState([])
   const [id, setId] = useState(null)
-  const [isByCity, setIsByCity] = useState(true) // Track the current map type
+  const { timeFrame } = params
+  const [searchData, setSearchData] = useState(timeFrame !== undefined)
+  let startDate, endDate, formattedStartDate, formattedEndDate
+
+  if (timeFrame !== undefined) {
+    const [startDateString, endDateString] = timeFrame.split("%7C")
+    startDate = parseISO(startDateString)
+    endDate = parseISO(endDateString)
+    formattedStartDate = format(startDate, "do MMM, yyyy")
+    formattedEndDate = format(endDate, "do MMM, yyyy")
+  }
 
   const [mapUrl, setMapUrl] = useState(geoUrl) // Initial map URL is geoUrl
   const [isHighQuality, setIsHighQuality] = useState(true) // Track the current map type
@@ -55,6 +62,58 @@ export default function Composer({ params }) {
   const [filteredLocationsData, setFilteredLocationsData] = useState()
   const [selectedComposerNames, setSelectedComposerNames] = useState([])
   const [locationsWithComposer, setlocationsWithComposer] = useState([])
+
+  const { width } = useViewportSize()
+  //select and show accordingly the map
+  const [thereIsMoreInWorld, setThereIsMoreInWorld] = useState(false)
+  const [thereIsMoreInWorldPopup, setThereIsMoreInWorldPopup] = useState(false)
+  // filter from list
+  const [activeContinents, setActiveContinents] = useState([])
+  const [activeCountries, setActiveCountries] = useState([])
+
+  const handleSwitchToggleContinent = (continent) => {
+    setActiveContinents((prev) =>
+      prev.includes(continent)
+        ? prev.filter((c) => c !== continent)
+        : [...prev, continent]
+    )
+  }
+  const handleSwitchToggleCountry = (country) => {
+    setActiveCountries((prev) =>
+      prev.includes(country)
+        ? prev.filter((c) => c !== country)
+        : [...prev, country]
+    )
+  }
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setThereIsMoreInWorldPopup(false)
+    }, 10000)
+
+    return () => clearTimeout(timeoutId)
+  }, [])
+
+  const filteredLocationsDataViewMap = isEuropeMap
+    ? filteredLocationsData?.filter((location) => location.continent === "EU")
+    : filteredLocationsData
+
+  useEffect(() => {
+    if (filteredLocationsData && filteredLocationsData.length > 0) {
+      const nonEuLocations = filteredLocationsData.filter(
+        (location) => location.continent !== "EU"
+      )
+      if (nonEuLocations.length > 0) {
+        setThereIsMoreInWorld(true)
+        setThereIsMoreInWorldPopup(true)
+        setTimeout(() => {
+          setThereIsMoreInWorldPopup(false)
+        }, 5000)
+      } else {
+        setThereIsMoreInWorld(false)
+      }
+    }
+  }, [filteredLocationsData])
 
   const handleFilterChange = () => {
     if (
@@ -84,26 +143,39 @@ export default function Composer({ params }) {
   ])
 
   const { performerId } = params
+  const { eventIds } = params
+
+  const searchId = performerId ? performerId : eventIds
+  const searchKind = performerId ? "performerId" : "eventIds"
 
   useEffect(() => {
     async function fetchData() {
-      const eventIds = null
-      const data = await GetLocationsWithEventsAndTitle(id, eventIds)
+      const res = await fetch(
+        `/api/getMergedLocations?${searchKind}=${searchId}`
+      )
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch data")
+      }
+
+      const data = await res.json()
       setLocationsData(data)
     }
 
-    if (id) {
+    if (performerId || eventIds) {
       fetchData()
     }
-  }, [id])
+  }, [performerId, eventIds])
 
   useEffect(() => {
     async function getData() {
       const data = await GetInfoPerson(performerId)
       setId(data[performerId])
     }
-    getData()
-  }, [performerId])
+    if (performerId) {
+      getData()
+    }
+  }, [performerId, eventIds])
 
   let highestYear = null
   let lowestYear = null
@@ -146,7 +218,8 @@ export default function Composer({ params }) {
     async function fetchData() {
       const locationsWithComposer = await GetExpandedEventWithPerformances(
         id,
-        locationsData
+        locationsData,
+        eventIds
       )
       setlocationsWithComposer(locationsWithComposer)
     }
@@ -196,24 +269,49 @@ export default function Composer({ params }) {
     filterHighestYear,
   ])
 
-  const { toast } = useToast()
+  // filter list
+  const filteredDataContinent = filteredLocationsData
+    ? filteredLocationsData.filter(
+        (location) => !activeContinents.includes(location.continent)
+      )
+    : locationsData.filter(
+        (location) => !activeContinents.includes(location.continent)
+      )
 
+  const filteredDataCountry = filteredDataContinent.filter(
+    (location) => !activeCountries.includes(location.country)
+  )
+
+  const { toast } = useToast()
   return (
     <m.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.75, ease: "easeInOut" }}
-      className="relative"
     >
       <div className="container">
         {id && (
+          <div className="fixed top-16 z-10 w-fit text-3xl font-black md:text-4xl lg:top-32 lg:w-96">
+            <h1>{id.title}</h1>
+          </div>
+        )}
+        {timeFrame && (
           <h1 className="fixed top-16 z-10 w-fit text-3xl font-black md:text-4xl lg:top-32 lg:w-96">
-            {id.title}
+            From {formattedStartDate}
+            <br />
+            to {formattedEndDate}
           </h1>
         )}
       </div>
       <Tabs defaultValue="map">
-        <div className="fixed bottom-10 z-20 flex w-full justify-center lg:top-16">
+        <div
+          className={
+            // It can't be done with tailwind because otherwise it makes the items in the list not clickable
+            width < 1024
+              ? "fixed bottom-10 z-20 flex w-full justify-center"
+              : "fixed top-16 z-20 flex w-full justify-center"
+          }
+        >
           <TabsList className="flex justify-center shadow-lg lg:shadow-none">
             <TabsTrigger
               onClick={() => {
@@ -238,56 +336,66 @@ export default function Composer({ params }) {
 
         <LayoutGroup>
           <TabsContent value="map">
-            <Suspense fallback={<Loading />}>
-              <MapVisualizer
-                locationsData={filteredLocationsData}
-                lowestYear={lowestYear}
-                highestYear={highestYear}
-                filterHighestYear={filterHighestYear}
-                updateFilterHighestYear={updateFilterHighestYear}
-                isByCity={isByCity}
-                setIsByCity={setIsByCity}
-                isHighQuality={isHighQuality}
-                setIsHighQuality={setIsHighQuality}
-                isEuropeMap={isEuropeMap}
-                setIsGeoMap={setIsGeoMap}
-                changeMap={changeMap}
-                setChangeMap={setChangeMap}
-                mapUrl={mapUrl}
-                setMapUrl={setMapUrl}
-                expandedLocations={expandedLocations}
-              />
-            </Suspense>
+            <MapVisualizer
+              locationsData={filteredLocationsDataViewMap}
+              lowestYear={lowestYear}
+              highestYear={highestYear}
+              filterHighestYear={filterHighestYear}
+              updateFilterHighestYear={updateFilterHighestYear}
+              isHighQuality={isHighQuality}
+              setIsHighQuality={setIsHighQuality}
+              isEuropeMap={isEuropeMap}
+              setIsGeoMap={setIsGeoMap}
+              changeMap={changeMap}
+              setChangeMap={setChangeMap}
+              mapUrl={mapUrl}
+              setMapUrl={setMapUrl}
+              expandedLocations={expandedLocations}
+              searchData={searchData}
+              thereIsMoreInWorld={thereIsMoreInWorld}
+              thereIsMoreInWorldPopup={thereIsMoreInWorldPopup}
+              filteredDataContinent={filteredDataContinent}
+              filteredDataCountry={filteredDataCountry}
+              handleSwitchToggleContinent={handleSwitchToggleContinent}
+              handleSwitchToggleCountry={handleSwitchToggleCountry}
+              activeContinents={activeContinents}
+              activeCountries={activeCountries}
+            />
           </TabsContent>
           <TabsContent value="list">
-            <Suspense fallback={<Loading />}>
-              {filteredLocationsData && (
-                <List
-                  filteredLocationsData={filteredLocationsData}
-                  setExpandedLocations={setExpandedLocations}
-                  setConcerts={setConcerts}
-                  setMusicTheater={setMusicTheater}
-                  setReligiousEvent={setReligiousEvent}
-                  setSeason={setSeason}
-                  isConcertCategoryAvailable={isConcertCategoryAvailable}
-                  isMusicTheaterCategoryAvailable={
-                    isMusicTheaterCategoryAvailable
-                  }
-                  isReligiousEventCategoryAvailable={
-                    isReligiousEventCategoryAvailable
-                  }
-                  isSeasonCategoryAvailable={isSeasonCategoryAvailable}
-                  concerts={concerts}
-                  musicTheater={musicTheater}
-                  religiousEvent={religiousEvent}
-                  season={season}
-                  areAllFiltersDeactivated={areAllFiltersDeactivated}
-                  expandedLocations={expandedLocations}
-                  setSelectedComposerNames={setSelectedComposerNames}
-                  selectedComposerNames={selectedComposerNames}
-                />
-              )}
-            </Suspense>
+            {filteredLocationsData && (
+              <List
+                filteredLocationsData={filteredLocationsData}
+                setExpandedLocations={setExpandedLocations}
+                setConcerts={setConcerts}
+                setMusicTheater={setMusicTheater}
+                setReligiousEvent={setReligiousEvent}
+                setSeason={setSeason}
+                isConcertCategoryAvailable={isConcertCategoryAvailable}
+                isMusicTheaterCategoryAvailable={
+                  isMusicTheaterCategoryAvailable
+                }
+                isReligiousEventCategoryAvailable={
+                  isReligiousEventCategoryAvailable
+                }
+                isSeasonCategoryAvailable={isSeasonCategoryAvailable}
+                concerts={concerts}
+                musicTheater={musicTheater}
+                religiousEvent={religiousEvent}
+                season={season}
+                areAllFiltersDeactivated={areAllFiltersDeactivated}
+                expandedLocations={expandedLocations}
+                setSelectedComposerNames={setSelectedComposerNames}
+                selectedComposerNames={selectedComposerNames}
+                searchData={searchData}
+                activeContinents={activeContinents}
+                activeCountries={activeCountries}
+                filteredDataContinent={filteredDataContinent}
+                filteredDataCountry={filteredDataCountry}
+                handleSwitchToggleContinent={handleSwitchToggleContinent}
+                handleSwitchToggleCountry={handleSwitchToggleCountry}
+              />
+            )}
           </TabsContent>
         </LayoutGroup>
       </Tabs>

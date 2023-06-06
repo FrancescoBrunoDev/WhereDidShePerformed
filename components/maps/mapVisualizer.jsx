@@ -1,6 +1,6 @@
 "user client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import MapCamp from "@/components/maps/mapCamp"
 import ScrollAreaMap from "@/components/maps/scrollAreaMap"
@@ -11,8 +11,6 @@ export default function MapVisualizer({
   highestYear,
   filterHighestYear,
   updateFilterHighestYear,
-  isByCity,
-  setIsByCity,
   setIsHighQuality,
   isHighQuality,
   isEuropeMap,
@@ -23,9 +21,18 @@ export default function MapVisualizer({
   setMapUrl,
   expandedLocations,
   searchData,
+  thereIsMoreInWorld,
+  thereIsMoreInWorldPopup,
+  filteredDataContinent,
+  filteredDataCountry,
+  handleSwitchToggleContinent,
+  handleSwitchToggleCountry,
+  activeContinents,
+  activeCountries,
 }) {
   const [selectedLocationId, setSelectedLocationId] = useState(null)
   const [isHover, setIsHover] = useState(false)
+
 
   return (
     <section>
@@ -37,31 +44,37 @@ export default function MapVisualizer({
         filterHighestYear={filterHighestYear}
         updateFilterHighestYear={updateFilterHighestYear}
         setIsHover={setIsHover}
-        isByCity={isByCity}
         expandedLocations={expandedLocations}
         searchData={searchData}
+        thereIsMoreInWorld={thereIsMoreInWorld}
+        isEuropeMap={isEuropeMap}
+        filteredDataContinent={filteredDataContinent}
+        filteredDataCountry={filteredDataCountry}
+        handleSwitchToggleContinent={handleSwitchToggleContinent}
+        handleSwitchToggleCountry={handleSwitchToggleCountry}
+        activeContinents={activeContinents}
+        activeCountries={activeCountries}
       />
 
       <div>
-        {
-          <MapCamp
-            locationsData={locationsData}
-            isHover={isHover}
-            setIsHover={setIsHover}
-            selectedLocationId={selectedLocationId}
-            setSelectedLocationId={setSelectedLocationId}
-            setIsByCity={setIsByCity}
-            isByCity={isByCity}
-            isHighQuality={isHighQuality}
-            setIsHighQuality={setIsHighQuality}
-            isEuropeMap={isEuropeMap}
-            setIsGeoMap={setIsGeoMap}
-            changeMap={changeMap}
-            setChangeMap={setChangeMap}
-            mapUrl={mapUrl}
-            setMapUrl={setMapUrl}
-          />
-        }
+        <MapCamp
+          locationsData={locationsData}
+          isHover={isHover}
+          setIsHover={setIsHover}
+          selectedLocationId={selectedLocationId}
+          setSelectedLocationId={setSelectedLocationId}
+          isHighQuality={isHighQuality}
+          setIsHighQuality={setIsHighQuality}
+          isEuropeMap={isEuropeMap}
+          setIsGeoMap={setIsGeoMap}
+          changeMap={changeMap}
+          setChangeMap={setChangeMap}
+          mapUrl={mapUrl}
+          setMapUrl={setMapUrl}
+          thereIsMoreInWorld={thereIsMoreInWorld}
+          thereIsMoreInWorldPopup={thereIsMoreInWorldPopup}
+          filteredDataCountry={filteredDataCountry}
+        />
       </div>
     </section>
   )

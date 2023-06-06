@@ -65,7 +65,7 @@ export default function TopPerfomers() {
                 <div className="col-span-1 grid grid-cols-6">
                   <Link
                     key={performerId}
-                    href={`/perfomer/${performerId}/`}
+                    href={`/query/perfomer/${performerId}/`}
                     className="col-span-5"
                   >
                     <m.h2

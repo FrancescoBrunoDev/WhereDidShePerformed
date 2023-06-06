@@ -13,7 +13,7 @@ async function queryData(query) {
 export { queryData }
 
 async function GetCoordinates(locationUid) {
-  const url = `https://performance.musiconn.de/api?action=get&location=${locationUid}&props=title|geometries|uid|parents|categories&format=json`
+  const url = `https://performance.musiconn.de/api?action=get&location=${locationUid}&props=title|geometries|uid|categories&format=json`
   const res = await fetch(url)
   if (!res.ok) {
     throw new Error("Failed to fetch data")
@@ -25,7 +25,7 @@ export { GetCoordinates }
 
 async function GetLocations(eventIud) {
 
-  const url = `https://performance.musiconn.de/api?action=get&event=${eventIud}&props=locations|dates|categories&format=json`
+  const url = `https://performance.musiconn.de/api?action=get&event=${eventIud}&props=locations|dates|categories|title&format=json`
   const res = await fetch(url)
   if (!res.ok) {
     throw new Error("Failed to fetch data")

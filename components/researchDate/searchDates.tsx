@@ -6,7 +6,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Icons } from "@/components/icons"
+import getRandomSentenceList from "@/components/researchDate/randomSentences"
 
 interface SearchDatesProps {
   handleFromChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -15,6 +16,9 @@ interface SearchDatesProps {
   fromValue: string
   toValue: string
   searchData: boolean
+  fromValueIsValid: boolean
+  toValueIsValid: boolean
+  fromValueIsAfterToValue: boolean
 }
 
 export default function SearchDates({
@@ -24,42 +28,77 @@ export default function SearchDates({
   fromValue,
   toValue,
   searchData,
+  fromValueIsValid,
+  toValueIsValid,
+  fromValueIsAfterToValue,
 }: SearchDatesProps) {
   return (
     <>
       {searchData ? null : (
         <CardHeader>
           <CardTitle>Search by Dates</CardTitle>
-          <CardDescription>pick a date</CardDescription>
         </CardHeader>
       )}
+
       <CardContent
-        className={
-          searchData
-            ? "grid max-w-sm content-center gap-1.5 p-0"
-            : "grid max-w-sm items-center gap-1.5"
-        }
+        className={`grid max-w-sm space-y-1
+          ${searchData ? "content-center p-1 rounded-lg bg-background" : "items-center"}
+            `}
       >
-        {" "}
-        <div className="grid grid-cols-2 gap-1">
-          <Input
-            className="col-span-1"
-            placeholder="From Date"
-            value={fromValue}
-            onChange={handleFromChange}
-          />
-          <Input
-            className="col-span-1"
-            placeholder="From Date"
-            value={toValue}
-            onChange={handleToChange}
-          />
+        <CardDescription></CardDescription>
+        <div className="grid grid-cols-2 gap-1 mt-0">
+          <div className="col-span-1 grid grid-cols-1 space-y-1">
+            <CardDescription className="flex items-center justify-start">
+              start date{" "}
+              {fromValueIsValid && (
+                <Icons.check className="h-4 text-green-600" />
+              )}
+            </CardDescription>
+            <Input
+              placeholder="yyyy-MM-dd"
+              value={fromValue}
+              onChange={handleFromChange}
+            />
+          </div>
+          <div className="col-span-1 grid grid-cols-1 space-y-1">
+            <CardDescription className="flex items-center justify-start">
+              end date{" "}
+              {toValueIsValid && <Icons.check className="h-4 text-green-600" />}
+            </CardDescription>
+            <Input
+              placeholder="yyyy-MM-dd"
+              value={toValue}
+              onChange={handleToChange}
+            />
+          </div>
         </div>
-        <CardDescription>
-          use the format yyyy-MM-dd
-        </CardDescription>
-        <Button className="col-span-1" type="submit" onClick={handleDateSubmit}>
-          Search
+        <Button
+          className={`col-span-1 ${
+            fromValueIsValid && toValueIsValid && !fromValueIsAfterToValue
+              ? ""
+              : "cursor-no-drop"
+          }`}
+          variant={
+            fromValueIsValid && toValueIsValid && !fromValueIsAfterToValue
+              ? "default"
+              : "secondary"
+          }
+          type="submit"
+          onClick={() => {
+            if (
+              fromValueIsValid &&
+              toValueIsValid &&
+              !fromValueIsAfterToValue
+            ) {
+              handleDateSubmit()
+            }
+          }}
+        >
+          {fromValueIsAfterToValue ? (
+            <span className="text-xs">{getRandomSentenceList()}</span>
+          ) : (
+            "Search"
+          )}
         </Button>
       </CardContent>
     </>

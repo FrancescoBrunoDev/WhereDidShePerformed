@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -70,7 +69,7 @@ export function TopPersons() {
             <ScrollArea className="h-full">
               {sortedPerformer.map(
                 ({ performerId, performerName, count }, index) => (
-                  <Link key={performerId} href={`/perfomer/${performerId}/`}>
+                  <Link key={performerId} href={`/query/perfomer/${performerId}/`}>
                     <m.div
                       whileHover={{
                         scale: 1.01,

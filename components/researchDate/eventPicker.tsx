@@ -1,5 +1,4 @@
-import * as React from "react"
-import { ChangeEventHandler, useState } from "react"
+import React, { ChangeEventHandler, useEffect, useState } from "react"
 import { format, isAfter, isBefore, isValid, parse } from "date-fns"
 import { AnimatePresence, motion as m } from "framer-motion"
 import Lottie from "lottie-react"
@@ -33,33 +32,42 @@ export function DatePicker(props: DatePickerProps) {
     startDate: "",
     endDate: "",
   })
+  const [fromValueIsValid, setFromValueIsValid] = useState<boolean>(false)
+  const [toValueIsValid, setToValueIsValid] = useState<boolean>(false)
+  const [fromValueIsAfterToValue, setFromValueIsAfterToValue] =
+    useState<boolean>(false)
 
   const handleFromChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setFromValue(e.target.value)
     const date = parse(e.target.value, "y-MM-dd", new Date())
     if (!isValid(date)) {
-      return setSelectedRange({ from: undefined, to: undefined })
-    }
-    if (selectedRange?.to && isAfter(date, selectedRange.to)) {
-      setSelectedRange({ from: selectedRange.to, to: date })
+      setFromValueIsValid(false)
+      setSelectedRange({ from: undefined, to: undefined })
     } else {
-      setSelectedRange({ from: date, to: selectedRange?.to })
+      setFromValueIsValid(true)
     }
+    setSelectedRange({ from: date, to: selectedRange?.to })
   }
 
   const handleToChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setToValue(e.target.value)
     const date = parse(e.target.value, "y-MM-dd", new Date())
-
     if (!isValid(date)) {
-      return setSelectedRange({ from: selectedRange?.from, to: undefined })
-    }
-    if (selectedRange?.from && isBefore(date, selectedRange.from)) {
-      setSelectedRange({ from: date, to: selectedRange.from })
+      setToValueIsValid(false)
+      setSelectedRange({ from: selectedRange?.from, to: undefined })
     } else {
-      setSelectedRange({ from: selectedRange?.from, to: date })
+      setToValueIsValid(true)
     }
+    setSelectedRange({ from: selectedRange?.from, to: date })
   }
+  // chek if the from value is after the to value
+  useEffect(() => {
+    if (selectedRange?.from && selectedRange?.to && isAfter(selectedRange.from, selectedRange.to)) {
+      setFromValueIsAfterToValue(true)
+    } else {
+      setFromValueIsAfterToValue(false)
+    }
+  }, [selectedRange?.from, selectedRange?.to])
 
   async function handleDateSubmit() {
     let startDateString: string | undefined
@@ -78,6 +86,16 @@ export function DatePicker(props: DatePickerProps) {
 
     if (startDateString && endDateString) {
       setLoading(true) // Start the loading animation
+
+      /* 
+      I can't use API becaue the request is too long      
+      const res = await fetch(`/api/getEventByDate?startDateString${fromValue}&endDateString=${toValue}`);
+      console.log(res, "filteredEventsForDate")
+      if (!res.ok) {
+        throw new Error("Failed to fetch data");
+      }
+    
+      const data = await res.json(); */
 
       const filteredEventsForDate = await main(fromValue, toValue)
 
@@ -146,6 +164,9 @@ export function DatePicker(props: DatePickerProps) {
                       fromValue={fromValue}
                       toValue={toValue}
                       handleDateSubmit={handleDateSubmit}
+                      fromValueIsValid={fromValueIsValid}
+                      toValueIsValid={toValueIsValid}
+                      fromValueIsAfterToValue={fromValueIsAfterToValue}
                     />
                   )}
                 </m.div>

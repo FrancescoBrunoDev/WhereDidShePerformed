@@ -45,7 +45,7 @@ export default function RandomCard() {
   return (
     <Suspense fallback={<Loading />}>
       {person && (
-        <Link href={`/perfomer/${person.uid}/`}>
+        <Link href={`/query/perfomer/${person.uid}/`}>
           <m.div
             whileHover={{
               scale: 1.02,
@@ -62,10 +62,10 @@ export default function RandomCard() {
               <CardFooter className="grid grid-cols-1 gap-y-4">
                 <h3 className="text-base font-black">{person.title}</h3>
                 <div className="flex gap-x-1">
-                  <Badge>Events {person.events.length}</Badge>
                   <Badge variant="outline" className="bg-background">
-                    {person.uid}
+                    Events {person.events.length}
                   </Badge>
+                  <Badge>{person.uid}</Badge>
                 </div>
               </CardFooter>
             </Card>

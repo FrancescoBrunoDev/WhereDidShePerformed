@@ -26,7 +26,7 @@ export default function PerformanceSearch() {
         exit={{ y: 5, opacity: 0 }}
         className="sticky top-[-5rem] z-10 pb-14 pt-32"
       >
-        <h1 className="pb-5 text-6xl font-black md:text-8xl">
+        <h1 className="pb-5 text-6xl font-black md:text-8xl ">
           Who&apos;s the performer?
         </h1>
         <PerformanceSearchForm

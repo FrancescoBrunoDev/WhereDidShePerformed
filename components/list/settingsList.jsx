@@ -41,12 +41,11 @@ export function SettingsList({
   return (
     <div className="container flex justify-center lg:justify-end">
       <m.div
-        layout
         initial={{ x: 5, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         className="fixed top-40 z-30 flex flex-wrap items-center divide-inherit rounded-lg bg-secondary px-4 py-2 md:space-y-0"
       >
-        <m.div layout className="hidden lg:block">
+        <m.div className="hidden lg:block">
           <m.div className="flex grow justify-center space-x-3 lg:justify-end">
             <FilterList
               setConcerts={setConcerts}
