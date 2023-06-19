@@ -6,10 +6,10 @@ import MarksMap from "./marksMarp"
 import MenuMap from "./menuMap"
 
 const geoUrl =
-  "https://raw.githubusercontent.com/leakyMirror/map-of-europe/27a335110674ae5b01a84d3501b227e661beea2b/TopoJSON/europe.topojson"
+  "/maps/europe.json"
 
 const worldUrl =
-  "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json"
+  "/maps/world.json"
 
 export default function MapCamp({
   locationsData,

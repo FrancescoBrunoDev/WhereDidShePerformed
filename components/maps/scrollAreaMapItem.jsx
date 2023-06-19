@@ -1,7 +1,6 @@
 import { Suspense, useState } from "react"
 import Link from "next/link"
 import { linkMaker } from "@/utils/linkMaker"
-import { motion as m } from "framer-motion"
 import { groupBy } from "lodash"
 
 import {

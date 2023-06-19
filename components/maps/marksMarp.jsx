@@ -1,4 +1,3 @@
-import { AnimatePresence, motion as m } from "framer-motion"
 import { Marker } from "react-simple-maps"
 
 export default function MarksMap({

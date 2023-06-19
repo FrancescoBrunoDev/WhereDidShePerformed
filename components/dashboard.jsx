@@ -19,7 +19,7 @@ import MapVisualizer from "@/components/maps/mapVisualizer"
 import { GetInfoPerson } from "@/app/api/musiconn"
 
 const geoUrl =
-  "https://raw.githubusercontent.com/leakyMirror/map-of-europe/27a335110674ae5b01a84d3501b227e661beea2b/TopoJSON/europe.topojson"
+  "/maps/europe.json"
 
 export default function Dashboard({ params }) {
   const [locationsData, setLocationsData] = useState([])
@@ -308,7 +308,7 @@ export default function Dashboard({ params }) {
           className={
             // It can't be done with tailwind because otherwise it makes the items in the list not clickable
             width < 1024
-              ? "fixed bottom-10 z-20 flex w-full justify-center"
+              ? "fixed bottom-10 z-20 flex w-full scale-125 justify-center"
               : "fixed top-16 z-20 flex w-full justify-center"
           }
         >
