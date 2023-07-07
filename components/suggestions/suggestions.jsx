@@ -38,7 +38,7 @@ export default function Suggestions() {
         animate={{ y: 0, opacity: 1, transition: { delay: 0.5 } }}
         exit={{ y: 5, opacity: 0, transition: { delay: 0.1 } }}
       >
-        <div className="pb-3 flex snap-x scroll-pl-6 flex-nowrap gap-4 overflow-x-scroll pr-10 pt-1">
+        <div className="flex snap-x scroll-pl-6 flex-nowrap gap-4 overflow-x-scroll pb-3 pr-10 pt-1">
           <DatePicker />
           <TopPersons />
           <TopPerfomers />

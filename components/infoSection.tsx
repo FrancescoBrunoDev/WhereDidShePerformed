@@ -1,4 +1,5 @@
 import Link from "next/link"
+
 import { siteConfig } from "@/config/site"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Icons } from "@/components/icons"
 
-const randomNumber = Math.floor(Math.random() * 1000) + 1;
+const randomNumber = Math.floor(Math.random() * 1000) + 1
 
 export function InfoSection() {
   return (
@@ -24,7 +25,7 @@ export function InfoSection() {
         })}
       >
         <DialogTrigger>
-          <Icons.info className="h-5 w-5" />
+          <Icons.info className="h-5 w-5 stroke-primary dark:hover:stroke-secondary" />
           <span className="sr-only">Info</span>
         </DialogTrigger>
       </div>

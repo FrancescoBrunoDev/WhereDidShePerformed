@@ -11,8 +11,8 @@ export function Loading() {
   }, [])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-20">
-      <Progress value={progress} className="w-[60%]" />
+    <div className="flex min-h-screen scale-50 flex-col items-center justify-center px-20">
+      <Progress value={progress} className="w-[25%]" />
     </div>
   )
 }

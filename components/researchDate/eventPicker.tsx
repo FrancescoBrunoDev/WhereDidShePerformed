@@ -1,5 +1,6 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react"
-import { format, isAfter, isBefore, isValid, parse } from "date-fns"
+import { useStoreSearchByDate } from "@/store/useStoreSearchByDate"
+import { format, isAfter, isValid, parse } from "date-fns"
 import { AnimatePresence, motion as m } from "framer-motion"
 import Lottie from "lottie-react"
 import { DateRange } from "react-day-picker"
@@ -48,6 +49,10 @@ export function DatePicker(props: DatePickerProps) {
     }
     setSelectedRange({ from: date, to: selectedRange?.to })
   }
+  const [date, setDate] = useStoreSearchByDate((state) => [
+    state.date,
+    state.setDate,
+  ])
 
   const handleToChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     setToValue(e.target.value)
@@ -62,7 +67,11 @@ export function DatePicker(props: DatePickerProps) {
   }
   // chek if the from value is after the to value
   useEffect(() => {
-    if (selectedRange?.from && selectedRange?.to && isAfter(selectedRange.from, selectedRange.to)) {
+    if (
+      selectedRange?.from &&
+      selectedRange?.to &&
+      isAfter(selectedRange.from, selectedRange.to)
+    ) {
       setFromValueIsAfterToValue(true)
     } else {
       setFromValueIsAfterToValue(false)
@@ -100,7 +109,7 @@ export function DatePicker(props: DatePickerProps) {
       const filteredEventsForDate = await main(fromValue, toValue)
 
       setResults(filteredEventsForDate) // Set the results if not empty
-
+      setDate(filteredEventsForDate)
       setLoading(false) // Stop the loading animation
     } else {
       console.log("Please select a date range")

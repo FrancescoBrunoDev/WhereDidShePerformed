@@ -1,46 +1,29 @@
 import { useEffect, useState } from "react"
+import { useStoreSettingMap } from "@/store/useStoreSettingMap"
 import { AnimatePresence, motion as m } from "framer-motion"
 import { ComposableMap, Geographies, Geography } from "react-simple-maps"
 
 import MarksMap from "./marksMarp"
 import MenuMap from "./menuMap"
 
-const geoUrl =
-  "/maps/europe.json"
-
-const worldUrl =
-  "/maps/world.json"
-
-export default function MapCamp({
-  locationsData,
-  isHover,
-  setIsHover,
-  selectedLocationId,
-  setSelectedLocationId,
-  isHighQuality,
-  setIsHighQuality,
-  isEuropeMap,
-  setIsGeoMap,
-  changeMap,
-  setChangeMap,
-  mapUrl,
-  setMapUrl,
-  thereIsMoreInWorld,
-  thereIsMoreInWorldPopup,
-  filteredDataCountry,
-}) {
+export default function MapCamp() {
   // handle map switch
   // map size based on screen size
+  const [mapUrl, locationsData, isEuropeMap, isHighQuality, setIsHighQuality] =
+    useStoreSettingMap((state) => [
+      state.mapUrl,
+      state.filteredLocationsDataViewMap,
+      state.isEuropeMap,
+      state.isHighQuality,
+      state.setIsHighQuality,
+    ])
+
+  // Set the map configuration state
   const [mapConfig, setMapConfig] = useState({
     scale: isEuropeMap ? 850 : 150,
     center: isEuropeMap ? [-3, 0] : [-60, 0],
     maxRadius: isEuropeMap ? 10 : 5,
   })
-
-  useEffect(() => {
-    // Update the map URL based on the current map type
-    setMapUrl(isEuropeMap ? geoUrl : worldUrl)
-  }, [isEuropeMap])
 
   useEffect(() => {
     const updateMapConfig = () => {
@@ -123,7 +106,13 @@ export default function MapCamp({
     return () => {
       window.removeEventListener("resize", updateMapConfig)
     }
-  }, [isEuropeMap, locationsData?.length, mapConfig.maxRadius])
+  }, [
+    isEuropeMap,
+    locationsData?.length,
+    mapConfig.maxRadius,
+    setIsHighQuality,
+    isHighQuality,
+  ])
 
   const { scale, center } = mapConfig
 
@@ -134,23 +123,14 @@ export default function MapCamp({
           className="fixed bottom-11 z-20
          lg:top-40"
         >
-          <MenuMap
-            setChangeMap={setChangeMap}
-            changeMap={changeMap}
-            setIsGeoMap={setIsGeoMap}
-            setIsHighQuality={setIsHighQuality}
-            isHighQuality={isHighQuality}
-            isEuropeMap={isEuropeMap}
-            thereIsMoreInWorld={thereIsMoreInWorld}
-            thereIsMoreInWorldPopup={thereIsMoreInWorldPopup}
-          />
+          <MenuMap />
         </div>
       </div>
       <>
         <AnimatePresence initial={false} mode="wait">
           <m.div
             className="fixed bottom-0 top-32 z-[-1] h-[80vh]"
-            key={changeMap}
+            key={mapUrl}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -183,18 +163,7 @@ export default function MapCamp({
                   ))
                 }
               </Geographies>{" "}
-              
-              <MarksMap
-                locationsData={locationsData}
-                isHighQuality={isHighQuality}
-                selectedLocationId={selectedLocationId}
-                setSelectedLocationId={setSelectedLocationId}
-                isHover={isHover}
-                setIsHover={setIsHover}
-                mapConfig={mapConfig}
-                filteredDataCountry={filteredDataCountry}
-                isEuropeMap={isEuropeMap}
-              />
+              <MarksMap mapConfig={mapConfig} />
             </ComposableMap>
           </m.div>
         </AnimatePresence>

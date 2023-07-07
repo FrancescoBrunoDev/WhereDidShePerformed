@@ -1,7 +1,7 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -69,22 +69,12 @@
     --radius: 0.5rem;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
-}
-
-.translucent-background {
-  --background: 0 0% 100%;
-  --foreground: 222.2 47.4% 11.2%;
-  background-color: hsla(
-    var(--background),
-    1
-  ); /* Adjust the alpha value (0.5) to control the transparency */
 }

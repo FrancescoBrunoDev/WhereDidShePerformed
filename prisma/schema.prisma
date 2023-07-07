@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                   String                  @id @default(cuid())
+  name                 String?
+  email                String?                 @unique
+  emailVerified        DateTime?
+  username             String?                 @unique
+  role                 Role                    @default(USER)
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
+  eventVerifications   UserEventVerification[]
+  event                Event[]
+  person               Person[]
+  work                 Work[]
+  usersVotesACandidate UsersVotesACandidate[]
+}
+
+model Event {
+  uid                   String                  @id @unique @default(cuid())
+  title                 String
+  locationsM            Json?
+  comment               String?
+  date                  DateTime?
+  category              Category
+  personsM              Json?
+  stateVerification     StateVerification?      @default(NONE)
+  worksM                Json?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  Creator               User?                   @relation(fields: [creatorId], references: [id])
+  creatorId             String
+  UserEventVerification UserEventVerification[]
+  link                  String?
+
+  @@index([title])
+  @@index([creatorId])
+}
+
+model UserEventVerification {
+  event             Event              @relation(fields: [eventId], references: [uid])
+  eventId           String             @id @unique
+  user              User               @relation(fields: [userId], references: [id])
+  userId            String
+  stateVerification StateVerification?
+
+  @@index([userId, eventId])
+}
+
+model Person {
+  uid       String   @id @unique @default(cuid())
+  mUid      String?
+  title     String
+  biography Json?
+  works     Work?    @relation(fields: [workUid], references: [uid])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User?    @relation(fields: [userId], references: [id])
+  workUid   String   @unique
+  userId    String
+}
+
+model Location {
+  uid        String  @id @unique @default(cuid())
+  mUid       String? @unique
+  title      String
+  slug       String?
+  geometries Json?
+  works      Work?   @relation(fields: [workUid], references: [uid])
+  workUid    String? @unique
+}
+
+model Work {
+  uid         String    @id @unique @default(cuid())
+  mUid        String?
+  title       String
+  slug        String?
+  category    Json?
+  dates       String?
+  description String?
+  persons     Person?
+  locations   Location?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  author      User      @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+enum Category {
+  Season
+  Concert
+  Religious_Event
+  Music_Theater
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum StateVerification {
+  PENDING
+  VERIFIED
+  REJECTED
+  NONE
+}
+
+// modelli per la gestione di locationM senza coordinate
+
+model LocationMC {
+  uid                  String                @id @unique // this is the same as the locationM
+  coordinateCandidates CoordinateCandidate[]
+
+  @@index([uid])
+}
+
+model CoordinateCandidate {
+  coordinateCandidateId Int // lo stesso di geoMap
+  locationMC            LocationMC             @relation(fields: [locationMCId], references: [uid])
+  locationMCId          String
+  locationName          String
+  lat                   String
+  lon                   String
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  votes                 UsersVotesACandidate[]
+
+  @@unique([locationMCId, coordinateCandidateId]) // Adding unique constraint on locationMCId and coordinateCandidateId
+  @@unique([coordinateCandidateId, locationMCId])
+  @@index([locationMCId, coordinateCandidateId])
+}
+
+model UsersVotesACandidate {
+  user                  User                @relation(fields: [userId], references: [id])
+  userId                String
+  coordinateCandidate   CoordinateCandidate @relation(fields: [coordinateCandidateId, locationMCId], references: [coordinateCandidateId, locationMCId])
+  coordinateCandidateId Int
+  locationMCId          String
+
+  @@unique([userId, locationMCId])
+  @@index([userId, locationMCId])
+  @@index([coordinateCandidateId, locationMCId])
+}

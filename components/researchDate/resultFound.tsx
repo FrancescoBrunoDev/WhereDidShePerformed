@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -24,10 +24,10 @@ export default function ResultFound(props: ResultFoundProps) {
     async function compressUid() {
       const compressed = await compress(uidString)
       const encodedUids = encodeURIComponent(compressed)
-      setEncodedUids(encodedUids);
+      setEncodedUids(encodedUids)
     }
     compressUid()
-  }, [])
+  }, [compress, uidString])
 
   return (
     <>
@@ -71,7 +71,7 @@ export default function ResultFound(props: ResultFoundProps) {
             </div>
           </div>
         ) : (
-          <Link href={`/query/date/${timeFrame}/${encodedUids}`}>
+          <Link href={`/query/date/${timeFrame}/searchDate`}>
             <div className="flex gap-2">
               <Button size={"sm"}>
                 I&apos;ve found {props.dateUids.length} events for you!

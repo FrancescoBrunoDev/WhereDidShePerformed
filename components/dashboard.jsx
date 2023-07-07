@@ -1,32 +1,57 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useStoreFiltersMap } from "@/store/useStoreFiltersMap"
+import { useStoreSearchByDate } from "@/store/useStoreSearchByDate"
 import { useViewportSize } from "@mantine/hooks"
 import { format, parseISO } from "date-fns"
 import { LayoutGroup, motion as m } from "framer-motion"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ToastAction } from "@/components/ui/toast"
 import { Toaster } from "@/components/ui/toaster"
-import { useToast } from "@/components/ui/use-toast"
-import {
-  checkCategoryAvailability,
-  filterLocationsData,
-} from "@/components/list/filterLocationsData"
 import List from "@/components/list/list"
-import { GetExpandedEventWithPerformances } from "@/components/maps/getExpandedLocations"
+import { Loading } from "@/components/loading"
 import MapVisualizer from "@/components/maps/mapVisualizer"
 import { GetInfoPerson } from "@/app/api/musiconn"
 
-const geoUrl =
-  "/maps/europe.json"
-
 export default function Dashboard({ params }) {
-  const [locationsData, setLocationsData] = useState([])
-  const [id, setId] = useState(null)
-  const { timeFrame } = params
-  const [searchData, setSearchData] = useState(timeFrame !== undefined)
+  const [
+    id,
+    setId,
+    locationsData,
+    setLocationsData,
+    isCategoryAvailable,
+    applyCategoryFilters,
+    categoryFiltersActive,
+    filterHighestYear,
+    activeContinents,
+    activeCountries,
+    getAvaiableComposers,
+    expandedLocations,
+    selectedComposerNames,
+    findHigestYear,
+    setSearchData,
+  ] = useStoreFiltersMap((state) => [
+    state.id,
+    state.setId,
+    state.locationsData,
+    state.setLocationsData,
+    state.isCategoryAvailable,
+    state.applyCategoryFilters,
+    state.categoryFiltersActive,
+    state.filterHighestYear,
+    state.activeContinents,
+    state.activeCountries,
+    state.getAvaiableComposers,
+    state.expandedLocations,
+    state.selectedComposerNames,
+    state.findHigestYear,
+    state.setSearchData,
+  ])
+
+  const date = useStoreSearchByDate((state) => state.date)
   let startDate, endDate, formattedStartDate, formattedEndDate
+  const { timeFrame } = params
 
   if (timeFrame !== undefined) {
     const [startDateString, endDateString] = timeFrame.split("%7C")
@@ -36,120 +61,25 @@ export default function Dashboard({ params }) {
     formattedEndDate = format(endDate, "do MMM, yyyy")
   }
 
-  const [mapUrl, setMapUrl] = useState(geoUrl) // Initial map URL is geoUrl
-  const [isHighQuality, setIsHighQuality] = useState(true) // Track the current map type
-  const [isEuropeMap, setIsGeoMap] = useState(true) // Track the current map type
-  const [changeMap, setChangeMap] = useState(0) // Track if the map is changed
-  const [expandedLocations, setExpandedLocations] = useState(false) // Track if the composer is expanded
-  const [concerts, setConcerts] = useState(true) // Track if the concerts-filter are triggered
-  const [musicTheater, setMusicTheater] = useState(true) // Track if the musicTheater-filter are triggered
-  const [religiousEvent, setReligiousEvent] = useState(true) // Track if the religiousEvent-filter are triggered
-  const [season, setSeason] = useState(true) // Track if the season-filter are triggered
-  const [areAllFiltersDeactivated, setAreAllFiltersDeactivated] =
-    useState(false)
-
-  const [isConcertCategoryAvailable, setIsConcertCategoryAvailable] =
-    useState(true)
-  const [isMusicTheaterCategoryAvailable, setIsMusicTheaterCategoryAvailable] =
-    useState(true)
-  const [
-    isReligiousEventCategoryAvailable,
-    setIsReligiousEventCategoryAvailable,
-  ] = useState(true)
-  const [isSeasonCategoryAvailable, setIsSeasonCategoryAvailable] =
-    useState(true)
-
-  const [filteredLocationsData, setFilteredLocationsData] = useState()
-  const [selectedComposerNames, setSelectedComposerNames] = useState([])
-  const [locationsWithComposer, setlocationsWithComposer] = useState([])
-
   const { width } = useViewportSize()
-  //select and show accordingly the map
-  const [thereIsMoreInWorld, setThereIsMoreInWorld] = useState(false)
-  const [thereIsMoreInWorldPopup, setThereIsMoreInWorldPopup] = useState(false)
-  // filter from list
-  const [activeContinents, setActiveContinents] = useState([])
-  const [activeCountries, setActiveCountries] = useState([])
 
-  const handleSwitchToggleContinent = (continent) => {
-    setActiveContinents((prev) =>
-      prev.includes(continent)
-        ? prev.filter((c) => c !== continent)
-        : [...prev, continent]
-    )
-  }
-  const handleSwitchToggleCountry = (country) => {
-    setActiveCountries((prev) =>
-      prev.includes(country)
-        ? prev.filter((c) => c !== country)
-        : [...prev, country]
-    )
-  }
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setThereIsMoreInWorldPopup(false)
-    }, 10000)
-
-    return () => clearTimeout(timeoutId)
-  }, [])
-
-  const filteredLocationsDataViewMap = isEuropeMap
-    ? filteredLocationsData?.filter((location) => location.continent === "EU")
-    : filteredLocationsData
-
-  useEffect(() => {
-    if (filteredLocationsData && filteredLocationsData.length > 0) {
-      const nonEuLocations = filteredLocationsData.filter(
-        (location) => location.continent !== "EU"
-      )
-      if (nonEuLocations.length > 0) {
-        setThereIsMoreInWorld(true)
-        setThereIsMoreInWorldPopup(true)
-        setTimeout(() => {
-          setThereIsMoreInWorldPopup(false)
-        }, 5000)
-      } else {
-        setThereIsMoreInWorld(false)
-      }
-    }
-  }, [filteredLocationsData])
-
-  const handleFilterChange = () => {
-    if (
-      (!concerts || !isConcertCategoryAvailable) &&
-      (!musicTheater || !isMusicTheaterCategoryAvailable) &&
-      (!religiousEvent || !isReligiousEventCategoryAvailable) &&
-      (!season || !isSeasonCategoryAvailable)
-    ) {
-      setAreAllFiltersDeactivated(true)
-    } else {
-      setAreAllFiltersDeactivated(false)
-    }
-  }
-
-  useEffect(() => {
-    handleFilterChange()
-  }, [
-    concerts,
-    musicTheater,
-    religiousEvent,
-    season,
-    isConcertCategoryAvailable,
-    isMusicTheaterCategoryAvailable,
-    isReligiousEventCategoryAvailable,
-    isSeasonCategoryAvailable,
-    handleFilterChange,
-  ])
+  // fetch data
 
   const { performerId } = params
-  const { eventIds } = params
+  const { userId } = params
+  const eventIds = date.filteredEvents
 
-  const searchId = performerId ? performerId : eventIds
-  const searchKind = performerId ? "performerId" : "eventIds"
+  const searchId = performerId ? performerId : eventIds ? eventIds : userId
+  const searchKind = performerId
+    ? "performerId"
+    : eventIds
+    ? "eventIds"
+    : "userId"
 
   useEffect(() => {
     async function fetchData() {
+      setLocationsData([])
+      setId(null)
       const res = await fetch(
         `/api/getMergedLocations?${searchKind}=${searchId}`
       )
@@ -158,14 +88,31 @@ export default function Dashboard({ params }) {
         throw new Error("Failed to fetch data")
       }
 
+      if (timeFrame !== undefined) {
+        setSearchData(true)
+      }
+
       const data = await res.json()
       setLocationsData(data)
+      isCategoryAvailable()
+      findHigestYear()
     }
 
-    if (performerId || eventIds) {
+    if (performerId || eventIds || userId) {
       fetchData()
     }
-  }, [performerId, eventIds])
+  }, [
+    performerId,
+    eventIds,
+    userId,
+    searchKind,
+    searchId,
+    timeFrame,
+    findHigestYear,
+    isCategoryAvailable,
+    setSearchData,
+    setLocationsData,
+  ])
 
   useEffect(() => {
     async function getData() {
@@ -175,114 +122,29 @@ export default function Dashboard({ params }) {
     if (performerId) {
       getData()
     }
-  }, [performerId, eventIds])
-
-  let highestYear = null
-  let lowestYear = null
-
-  if (locationsData.length > 0) {
-    locationsData.forEach(({ locations }) => {
-      if (locations) {
-        locations.forEach(({ eventInfo }) => {
-          if (eventInfo) {
-            eventInfo.forEach(({ date }) => {
-              const year = Number(date.substr(0, 4))
-
-              if (highestYear === null || year > highestYear) {
-                highestYear = year
-              }
-
-              if (lowestYear === null || year < lowestYear) {
-                lowestYear = year
-              }
-            })
-          }
-        })
-      }
-    })
-  }
-
-  let filterLowestYear = lowestYear
-
-  const [filterHighestYear, setFilterHighestYear] = useState(highestYear)
+  }, [performerId, eventIds, userId, setId])
 
   useEffect(() => {
-    setFilterHighestYear(highestYear)
-  }, [highestYear])
-
-  const updateFilterHighestYear = (newValue) => {
-    setFilterHighestYear(newValue)
-  }
-
-  useEffect(() => {
-    async function fetchData() {
-      const locationsWithComposer = await GetExpandedEventWithPerformances(
-        id,
-        locationsData,
-        eventIds
-      )
-      setlocationsWithComposer(locationsWithComposer)
-    }
-
     if (expandedLocations) {
-      fetchData()
+      getAvaiableComposers(id, locationsData, eventIds)
+      applyCategoryFilters()
     }
-  }, [id, expandedLocations])
+  }, [expandedLocations, id, locationsData, eventIds, getAvaiableComposers])
+
+  // FILTERS
 
   useEffect(() => {
-    filterLocationsData(
-      expandedLocations,
-      concerts,
-      musicTheater,
-      religiousEvent,
-      season,
-      locationsData,
-      setFilteredLocationsData,
-      selectedComposerNames,
-      locationsWithComposer,
-      filterLowestYear,
-      filterHighestYear
-    )
-
-    const seasonAvailable = checkCategoryAvailability(locationsData, 1)
-    setIsSeasonCategoryAvailable(seasonAvailable)
-
-    const concertAvailable = checkCategoryAvailability(locationsData, 2)
-    setIsConcertCategoryAvailable(concertAvailable)
-
-    const religiousEventAvailable = checkCategoryAvailability(locationsData, 3)
-    setIsReligiousEventCategoryAvailable(religiousEventAvailable)
-
-    const musicTheaterAvailable = checkCategoryAvailability(locationsData, 4)
-    setIsMusicTheaterCategoryAvailable(musicTheaterAvailable)
+    applyCategoryFilters()
   }, [
-    expandedLocations,
-    concerts,
-    musicTheater,
-    religiousEvent,
-    season,
-    locationsData,
-    setFilteredLocationsData,
-    selectedComposerNames,
-    locationsWithComposer,
-    filterLowestYear,
+    categoryFiltersActive,
     filterHighestYear,
+    activeCountries,
+    activeContinents,
+    expandedLocations,
+    selectedComposerNames,
+    applyCategoryFilters,
   ])
 
-  // filter list
-  const filteredDataContinent = filteredLocationsData
-    ? filteredLocationsData.filter(
-        (location) => !activeContinents.includes(location.continent)
-      )
-    : locationsData.filter(
-        (location) => !activeContinents.includes(location.continent)
-      )
-
-  const filteredDataCountry = filteredDataContinent.filter(
-    (location) => !activeCountries.includes(location.country)
-  )
-
-  const { toast } = useToast()
   return (
     <m.section
       initial={{ opacity: 0 }}
@@ -313,89 +175,17 @@ export default function Dashboard({ params }) {
           }
         >
           <TabsList className="flex justify-center shadow-lg lg:shadow-none">
-            <TabsTrigger
-              onClick={() => {
-                toast({
-                  title: areAllFiltersDeactivated
-                    ? "It's more fun with at least one filter!"
-                    : "The map is updated with your filter settings!",
-                  action: (
-                    <ToastAction altText="Goto schedule to undo">
-                      {areAllFiltersDeactivated ? "leave me alone!" : "Thanks!"}
-                    </ToastAction>
-                  ),
-                })
-              }}
-              value="map"
-            >
-              map
-            </TabsTrigger>
+            <TabsTrigger value="map">map</TabsTrigger>
             <TabsTrigger value="list">list</TabsTrigger>
           </TabsList>
         </div>
 
         <LayoutGroup>
           <TabsContent value="map">
-            <MapVisualizer
-              locationsData={filteredLocationsDataViewMap}
-              lowestYear={lowestYear}
-              highestYear={highestYear}
-              filterHighestYear={filterHighestYear}
-              updateFilterHighestYear={updateFilterHighestYear}
-              isHighQuality={isHighQuality}
-              setIsHighQuality={setIsHighQuality}
-              isEuropeMap={isEuropeMap}
-              setIsGeoMap={setIsGeoMap}
-              changeMap={changeMap}
-              setChangeMap={setChangeMap}
-              mapUrl={mapUrl}
-              setMapUrl={setMapUrl}
-              expandedLocations={expandedLocations}
-              searchData={searchData}
-              thereIsMoreInWorld={thereIsMoreInWorld}
-              thereIsMoreInWorldPopup={thereIsMoreInWorldPopup}
-              filteredDataContinent={filteredDataContinent}
-              filteredDataCountry={filteredDataCountry}
-              handleSwitchToggleContinent={handleSwitchToggleContinent}
-              handleSwitchToggleCountry={handleSwitchToggleCountry}
-              activeContinents={activeContinents}
-              activeCountries={activeCountries}
-            />
+            {locationsData.length > 0 ? <MapVisualizer /> : <Loading />}
           </TabsContent>
           <TabsContent value="list">
-            {filteredLocationsData && (
-              <List
-                filteredLocationsData={filteredLocationsData}
-                setExpandedLocations={setExpandedLocations}
-                setConcerts={setConcerts}
-                setMusicTheater={setMusicTheater}
-                setReligiousEvent={setReligiousEvent}
-                setSeason={setSeason}
-                isConcertCategoryAvailable={isConcertCategoryAvailable}
-                isMusicTheaterCategoryAvailable={
-                  isMusicTheaterCategoryAvailable
-                }
-                isReligiousEventCategoryAvailable={
-                  isReligiousEventCategoryAvailable
-                }
-                isSeasonCategoryAvailable={isSeasonCategoryAvailable}
-                concerts={concerts}
-                musicTheater={musicTheater}
-                religiousEvent={religiousEvent}
-                season={season}
-                areAllFiltersDeactivated={areAllFiltersDeactivated}
-                expandedLocations={expandedLocations}
-                setSelectedComposerNames={setSelectedComposerNames}
-                selectedComposerNames={selectedComposerNames}
-                searchData={searchData}
-                activeContinents={activeContinents}
-                activeCountries={activeCountries}
-                filteredDataContinent={filteredDataContinent}
-                filteredDataCountry={filteredDataCountry}
-                handleSwitchToggleContinent={handleSwitchToggleContinent}
-                handleSwitchToggleCountry={handleSwitchToggleCountry}
-              />
-            )}
+            <List />
           </TabsContent>
         </LayoutGroup>
       </Tabs>

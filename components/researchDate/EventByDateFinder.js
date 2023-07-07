@@ -97,8 +97,6 @@ async function main(startDateString, endDateString) {
     endDate: endDateString
   };
 
-  console.log(filteredData, "main")
-
   return filteredData; // Return the filtered events array
 }
 

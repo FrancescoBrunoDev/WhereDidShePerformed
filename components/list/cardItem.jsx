@@ -5,10 +5,15 @@ import { motion as m } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardDescription, CardHeader } from "@/components/ui/card"
 import { item } from "@/components/animationConst/animationConst"
+import { useStoreFiltersMap } from "@/store/useStoreFiltersMap"
 
 export function CardItem({ event }) {
   const title = event.eventTitle
   const cleanedTitleLink = linkMaker(title)
+
+  const expandedLocations = useStoreFiltersMap(
+    (state) => state.expandedLocations
+  )
 
   return (
     <m.div variants={item} initial="hidden" animate="visible" exit="hidden">
@@ -43,7 +48,7 @@ export function CardItem({ event }) {
             </div>
           </div>
 
-          {event.composerNamesArray && event.composerNamesArray.length > 0 && (
+          {expandedLocations && event.composerNamesArray && event.composerNamesArray.length > 0 && (
             <m.div
               key={event.composerNamesArray}
               initial={{ opacity: 0 }}

@@ -4,6 +4,8 @@ import { Metadata } from "next"
 import { siteConfig } from "@/config/site"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
+import { Toaster } from "@/components/ui/toaster"
+import Providers from "@/components/Providers"
 import { SiteHeader } from "@/components/site-header"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -25,11 +27,14 @@ export const metadata: Metadata = {
   },
 }
 
-interface RootLayoutProps {
-  children: React.ReactNode
-}
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({
+  children,
+  authModal,
+}: {
+  children: React.ReactNode
+  authModal: React.ReactNode
+}) {
   return (
     <>
       <html lang="en" suppressHydrationWarning>
@@ -41,11 +46,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
             fontSans.variable
           )}
         >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <SiteHeader />
-            {children}
-            {/* <TailwindIndicator /> */}
-          </ThemeProvider>
+          <Providers>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <SiteHeader />
+              {children}
+              {authModal}
+
+              {/* <TailwindIndicator /> */}
+            </ThemeProvider>
+            <Toaster />
+          </Providers>
         </body>
       </html>
     </>

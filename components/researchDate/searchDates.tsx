@@ -42,11 +42,14 @@ export default function SearchDates({
 
       <CardContent
         className={`grid max-w-sm space-y-1
-          ${searchData ? "content-center p-1 rounded-lg bg-background" : "items-center"}
+          ${
+            searchData
+              ? "content-center rounded-lg bg-background p-1"
+              : "items-center"
+          }
             `}
       >
-        <CardDescription></CardDescription>
-        <div className="grid grid-cols-2 gap-1 mt-0">
+        <div className="mt-0 grid grid-cols-2 gap-1">
           <div className="col-span-1 grid grid-cols-1 space-y-1">
             <CardDescription className="flex items-center justify-start">
               start date{" "}
@@ -81,7 +84,7 @@ export default function SearchDates({
           variant={
             fromValueIsValid && toValueIsValid && !fromValueIsAfterToValue
               ? "default"
-              : "secondary"
+              : "ghost"
           }
           type="submit"
           onClick={() => {

@@ -1,3 +1,5 @@
+"use client"
+
 import { Suspense, useState } from "react"
 import { AnimatePresence, motion as m } from "framer-motion"
 

@@ -21,7 +21,8 @@ export default function PerformanceSearchForm({
     if (searchTerm) {
       const fetchSuggestions = async () => {
         try {
-          const suggestions = await autocomplete(searchTerm)
+          const params = "person"
+          const suggestions = await autocomplete(searchTerm, params)
           setSuggestions(suggestions || [])
         } catch (error) {
           console.error(error)

@@ -1,3 +1,4 @@
+import { useStoreFiltersMap } from "@/store/useStoreFiltersMap"
 import { LayoutGroup, motion as m } from "framer-motion"
 
 import {
@@ -12,31 +13,18 @@ import { Icons } from "@/components/icons"
 import { ComposerSearchBox } from "./composerSearchBox"
 import { FilterList } from "./filterList"
 
-export function SettingsList({
-  setConcerts,
-  concerts,
-  setExpandedLocations,
-  expandedLocations,
-  musicTheater,
-  setMusicTheater,
-  isConcertAvailable,
-  isMusicTheaterAvailable,
-  setReligiousEvent,
-  religiousEvent,
-  isReligiousEventAvailable,
-  setSeason,
-  season,
-  isSeasonAvailable,
-  locationsData,
-  setSelectedComposerNames,
-  selectedComposerNames,
-  searchData,
-}) {
-  const isFilterActive =
-    isConcertAvailable ||
-    isMusicTheaterAvailable ||
-    isReligiousEventAvailable ||
-    isSeasonAvailable
+export function SettingsList() {
+  const [
+    setExpandedLocations,
+    expandedLocations,
+    resetSelectedComposerNames,
+    categoryFiltersActive,
+  ] = useStoreFiltersMap((state) => [
+    state.setExpandedLocations,
+    state.expandedLocations,
+    state.resetSelectedComposerNames,
+    state.categoryFiltersActive,
+  ])
 
   return (
     <div className="container flex justify-center lg:justify-end">
@@ -47,47 +35,23 @@ export function SettingsList({
       >
         <m.div className="hidden lg:block">
           <m.div className="flex grow justify-center space-x-3 lg:justify-end">
-            <FilterList
-              setConcerts={setConcerts}
-              concerts={concerts}
-              musicTheater={musicTheater}
-              setMusicTheater={setMusicTheater}
-              isConcertAvailable={isConcertAvailable}
-              isMusicTheaterAvailable={isMusicTheaterAvailable}
-              setReligiousEvent={setReligiousEvent}
-              religiousEvent={religiousEvent}
-              isReligiousEventAvailable={isReligiousEventAvailable}
-              setSeason={setSeason}
-              season={season}
-              isSeasonAvailable={isSeasonAvailable}
-            />
+            <FilterList />
           </m.div>
         </m.div>
         <div className="block lg:hidden">
           <Popover openDelay={200}>
             <PopoverTrigger>
               {" "}
-              <Toggle checked={!isFilterActive}>Filters</Toggle>
+              <Toggle checked={categoryFiltersActive.length > 0}>
+                Filters
+              </Toggle>
             </PopoverTrigger>
             <PopoverContent
               align="start"
               className="mt-2 grid grid-cols-1 gap-y-2"
             >
               {" "}
-              <FilterList
-                setConcerts={setConcerts}
-                concerts={concerts}
-                musicTheater={musicTheater}
-                setMusicTheater={setMusicTheater}
-                isConcertAvailable={isConcertAvailable}
-                isMusicTheaterAvailable={isMusicTheaterAvailable}
-                setReligiousEvent={setReligiousEvent}
-                religiousEvent={religiousEvent}
-                isReligiousEventAvailable={isReligiousEventAvailable}
-                setSeason={setSeason}
-                season={season}
-                isSeasonAvailable={isSeasonAvailable}
-              />
+              <FilterList />
             </PopoverContent>
           </Popover>
         </div>
@@ -102,20 +66,13 @@ export function SettingsList({
                 animate={{ opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
               >
-                <ComposerSearchBox
-                  locationsData={locationsData}
-                  setSelectedComposerNames={setSelectedComposerNames}
-                  selectedComposerNames={selectedComposerNames}
-                  searchData={searchData}
-                />
+                <ComposerSearchBox />
               </m.div>
               <LayoutGroup>
                 <Toggle
                   onPressedChange={() => {
-                    setExpandedLocations(
-                      (prevExpandedLocations) => !prevExpandedLocations
-                    )
-                    setSelectedComposerNames([])
+                    setExpandedLocations(false)
+                    resetSelectedComposerNames()
                   }}
                   checked={expandedLocations}
                 >
@@ -126,14 +83,14 @@ export function SettingsList({
           ) : (
             <Toggle
               onPressedChange={() => {
-                setExpandedLocations(
-                  (prevExpandedLocations) => !prevExpandedLocations
-                )
-                setSelectedComposerNames([])
+                setExpandedLocations(true)
+                resetSelectedComposerNames()
               }}
               checked={expandedLocations}
             >
-              {searchData ? "Who was performed?" : "Who did s.he perform?"}
+              {expandedLocations
+                ? "Who was performed?"
+                : "Who did s.he perform?"}
             </Toggle>
           )}
         </div>

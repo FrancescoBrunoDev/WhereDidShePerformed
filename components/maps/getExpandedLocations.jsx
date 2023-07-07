@@ -33,21 +33,24 @@ export async function GetExpandedEventWithPerformances(
   locationsData,
   eventIds
 ) {
-  const { decompress } = require("shrink-string")
   let _id = null
 
   if (id !== null) {
     _id = id
   } else if (eventIds) {
     // decode eventIds
-    const dencoded = decodeURIComponent(eventIds)
-    const decompressed = await decompress(dencoded)
-    const eventIdsArray = decompressed.split("-")
-    const uidString = eventIdsArray.join("|")
+    const batchSize = 1000
+    const eventIdsArray = eventIds.split("|")
+
     const batches = []
-    for (let i = 0; i < uidString.length; i += 1000) {
-      const batch = uidString.slice(i, i + 1000)
-      batches.push(batch)
+    let currentBatch = []
+    for (let i = 0; i < eventIdsArray.length; i++) {
+      currentBatch.push(eventIdsArray[i])
+
+      if (currentBatch.length === batchSize || i === eventIdsArray.length - 1) {
+        batches.push(currentBatch.join("|"))
+        currentBatch = []
+      }
     }
     const fetchPromises = batches.map((batch) => GetEventsDetails(batch))
     const fetchResults = await Promise.all(fetchPromises)
